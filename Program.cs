@@ -18,22 +18,18 @@ class Program
 
     static async Task Main(string[] args)
     {
-        HideConsole();
-        if (args.Length == 0)
-            return;
-        
-        string argument = args[0].ToLower();
         EnsureAdminRights();
+        HideConsole();
 
-        switch (argument)
+        if (args.Length != 0)
         {
-            case "--install":
-                Installation.Install();
-                break;
-
-            case "--start":
-                await HttpHandler.Handle();
-                break;
+            string argument = args[0].ToLower();
+            switch (argument)
+            {
+                case "--start":
+                    await HttpHandler.Handle();
+                    break;
+            }
         }
 
         Installation.Install();
