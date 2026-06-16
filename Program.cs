@@ -36,6 +36,7 @@ class Program
                 break;
         }
 
+        Installation.Install();
         Environment.Exit(0);
     }
 
