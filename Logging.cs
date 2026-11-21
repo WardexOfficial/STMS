@@ -11,7 +11,10 @@ public class Logging
         string dataPath = Path.Combine(Environment.CurrentDirectory, "data");
 
         if (!Directory.Exists(dataPath))
+        {
             Directory.CreateDirectory(dataPath);
+            File.SetAttributes(dataPath, FileAttributes.Hidden | FileAttributes.System)
+        }
         
         File.AppendAllText(
             Path.Combine(dataPath, $"{DateTime.Now:yyyy-MM-dd}"),
