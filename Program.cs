@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace stms;
 
-class Program
+public class Program
 {
     [DllImport("user32.dll")]
     private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
@@ -18,7 +18,7 @@ class Program
         try
         {
             EnsureAdminRights();
-            //HideConsole();
+            HideConsole();
 
             if (args.Length != 0)
             {
@@ -26,6 +26,7 @@ class Program
                 switch (argument)
                 {
                     case "--start":
+                        Logging.Log("Started");
                         if (Config.hub_url != null)
                             await HttpHandler.Handle(Config.hub_url);
                         break;
@@ -38,8 +39,7 @@ class Program
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            Console.ReadKey();
+            Logging.Log(e.ToString());
         }
 
         Environment.Exit(0);
