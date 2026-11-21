@@ -26,7 +26,6 @@ public class Program
                 switch (argument)
                 {
                     case "--start":
-                        Logging.Log("Started");
                         if (Config.hub_url != null)
                             await HttpHandler.Handle(Config.hub_url);
                         break;

@@ -22,9 +22,6 @@ public static class HttpHandler
                     string url = urlElement.GetString();
                     int count = countElement.GetInt32();
 
-                    Logging.Log($"URL: {url}");
-                    Logging.Log($"Count: {count}");
-
                     if (url != null)
                         for (int i = 0; i < count; i++)
                             await SendRequest(url);
@@ -45,7 +42,6 @@ public static class HttpHandler
             using var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
 
             await _httpClient.PostAsync(targetUrl, content);
-            Logging.Log($"Sended request to {targetUrl}");
         }
         catch (Exception)
         {
