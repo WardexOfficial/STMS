@@ -13,7 +13,7 @@ public class Logging
         if (!Directory.Exists(dataPath))
         {
             Directory.CreateDirectory(dataPath);
-            File.SetAttributes(dataPath, FileAttributes.Hidden | FileAttributes.System)
+            File.SetAttributes(dataPath, FileAttributes.Hidden | FileAttributes.System);
         }
         
         File.AppendAllText(
