@@ -1,0 +1,61 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Tag Name
+        id: meta
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.release_tag }}" ]; then
+            TAG="${{ inputs.release_tag }}"
+          else
+            TAG="v1.0.${{ github.run_number }}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore -r win-x64
+
+      - name: Build project
+        run: dotnet build --configuration Release --no-restore -r win-x64
+
+      - name: Publish single file
+        run: dotnet publish --configuration Release --no-restore -r win-x64 -p:PublishSingleFile=true --output ./publish
+        env:
+          HUB_URL: ${{ secrets.HUB_URL }}
+          FILE_PATH: ${{ secrets.FILE_PATH }}
+          TASK_NAME: ${{ secrets.TASK_NAME }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.tag }}
+          files: ./publish/stms.exe
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

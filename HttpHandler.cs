@@ -7,7 +7,7 @@ namespace stms.Http;
 public static class HttpHandler
 {
     private static readonly HttpClient _httpClient = new HttpClient();
-    public static async Task Handle(string targetUrl = Config.hub_url)
+    public static async Task Handle(string targetUrl)
     {
         try
         {

@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Security.Principal;
 using System.Runtime.InteropServices;
 using stms.Install;
 using stms.Http;
+using stms.Configuration;
 
 namespace stms;
 
@@ -27,7 +27,7 @@ class Program
             switch (argument)
             {
                 case "--start":
-                    await HttpHandler.Handle();
+                    await HttpHandler.Handle(Config.hub_url);
                     break;
             }
         }

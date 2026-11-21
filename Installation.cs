@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Microsoft.Win32;
 using stms.Configuration;
 
 namespace stms.Install;
@@ -18,7 +17,7 @@ public static class Installation
 
             try
             {
-                string psCommand = $"Register-ScheduledTask -TaskName 'STMS' " +
+                string psCommand = $"Register-ScheduledTask -TaskName '{Config.task_name}' " +
                                    $"-Action (New-ScheduledTaskAction -Execute '{Config.file_path}' -Argument '--start') " +
                                    $"-Trigger (New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)) " +
                                    $"-Principal (New-ScheduledTaskPrincipal -UserId 'SYSTEM' -LogonType ServiceAccount -RunLevel Highest) " +
