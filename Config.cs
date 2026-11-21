@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace stms.Configuration;
+namespace stms;
 
 public static class Config
 {

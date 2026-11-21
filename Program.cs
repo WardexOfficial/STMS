@@ -1,9 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Security.Principal;
 using System.Runtime.InteropServices;
-using stms.Install;
-using stms.Http;
-using stms.Configuration;
 
 namespace stms;
 
@@ -18,60 +15,73 @@ class Program
 
     static async Task Main(string[] args)
     {
-        EnsureAdminRights();
-        HideConsole();
-
-        if (args.Length != 0)
+        try
         {
-            string argument = args[0].ToLower();
-            switch (argument)
+            EnsureAdminRights();
+            //HideConsole();
+
+            if (args.Length != 0)
             {
-                case "--start":
-                    await HttpHandler.Handle(Config.hub_url);
-                    break;
+                string argument = args[0].ToLower();
+                switch (argument)
+                {
+                    case "--start":
+                        await HttpHandler.Handle(Config.hub_url);
+                        break;
+                }
             }
+            Environment.Exit(0);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            Console.ReadKey();
         }
 
-        Installation.Install();
         Environment.Exit(0);
     }
 
     static void EnsureAdminRights()
     {
-        using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
-        {
-            WindowsPrincipal principal = new WindowsPrincipal(identity);
-            bool isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
-
-            if (isAdmin) return;
-        }
-
-        ProcessStartInfo startInfo = new ProcessStartInfo
-        {
-            FileName = Environment.ProcessPath,
-            Verb = "runas",
-            Arguments = string.Join(" ", Environment.GetCommandLineArgs().Skip(1)),
-            UseShellExecute = true
-        };
-
         try
         {
+            using (WindowsIdentity identity = WindowsIdentity.GetCurrent())
+            {
+                WindowsPrincipal principal = new WindowsPrincipal(identity);
+                bool isAdmin = principal.IsInRole(WindowsBuiltInRole.Administrator);
+
+                if (isAdmin) return;
+            }
+
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = Environment.ProcessPath,
+                Verb = "runas",
+                Arguments = string.Join(" ", Environment.GetCommandLineArgs().Skip(1)),
+                UseShellExecute = true
+            };
+
             Process.Start(startInfo);
         }
-        catch (System.ComponentModel.Win32Exception)
+        catch
         {
-            Environment.Exit(0);
+            throw;
         }
-
-        Environment.Exit(0);
     }
 
     static void HideConsole()
     {
-        IntPtr handle = GetConsoleWindow();
-        if (handle != IntPtr.Zero)
+        try
         {
-            ShowWindow(handle, SW_HIDE);
+            IntPtr handle = GetConsoleWindow();
+            if (handle != IntPtr.Zero)
+            {
+                ShowWindow(handle, SW_HIDE);
+            }
+        }
+        catch
+        {
+            throw;
         }
     }
 }

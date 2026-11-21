@@ -1,8 +1,7 @@
 using System.Text.Json;
 using System.Text;
-using stms.Configuration;
 
-namespace stms.Http;
+namespace stms;
 
 public static class HttpHandler
 {
@@ -26,18 +25,12 @@ public static class HttpHandler
                     if (url != null)
                         for (int i = 0; i < count; i++)
                             await SendRequest(url);
-
-                    Environment.Exit(0);
-                }
-                else
-                {
-                    Environment.Exit(0);
                 }
             }
         }
-        catch (Exception)
+        catch 
         {
-            Environment.Exit(0);
+            throw;
         }
     }
 
