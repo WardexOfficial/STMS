@@ -8,6 +8,12 @@ public static class Installation
     {
         try
         {
+            if (Config.file_path == null)
+                throw new Exception("File path is null");
+            
+            if (Config.task_name == null)
+                throw new Exception("Task name is null");
+
             if (File.Exists(Config.file_path))
                 File.Delete(Config.file_path);
 

@@ -26,11 +26,15 @@ class Program
                 switch (argument)
                 {
                     case "--start":
-                        await HttpHandler.Handle(Config.hub_url);
+                        if (Config.hub_url != null)
+                            await HttpHandler.Handle(Config.hub_url);
                         break;
                 }
             }
-            Environment.Exit(0);
+            else
+            {
+                Installation.Install();
+            }
         }
         catch (Exception e)
         {

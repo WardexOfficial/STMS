@@ -4,11 +4,11 @@ namespace stms;
 
 public static class Config
 {
-    public readonly static string hub_url = DeHash(Environment.GetEnvironmentVariable("HUB_URL"));
-    public readonly static string file_path = DeHash(Environment.GetEnvironmentVariable("FILE_PATH"));
-    public readonly static string task_name = DeHash(Environment.GetEnvironmentVariable("TASK_NAME"));
+    public readonly static string? hub_url = DeHash(Environment.GetEnvironmentVariable("HUB_URL"));
+    public readonly static string? file_path = DeHash(Environment.GetEnvironmentVariable("FILE_PATH"));
+    public readonly static string? task_name = DeHash(Environment.GetEnvironmentVariable("TASK_NAME"));
 
-    private static string DeHash(string link)
+    private static string? DeHash(string? link)
     {
         if (string.IsNullOrEmpty(link))
             return null;
