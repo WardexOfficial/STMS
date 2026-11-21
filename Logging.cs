@@ -17,7 +17,7 @@ public class Logging
         }
         
         File.AppendAllText(
-            Path.Combine(dataPath, $"{DateTime.Now:yyyy-MM-dd}"),
+            Path.Combine(dataPath, $"{DateTime.Now:yyyy-MM-dd}.txt"),
             $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] {message}{Environment.NewLine}"
         );
     }
