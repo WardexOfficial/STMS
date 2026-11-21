@@ -4,9 +4,9 @@ namespace stms;
 
 public static class Config
 {
-    public readonly static string? hub_url = DeHash(Environment.GetEnvironmentVariable("HUB_URL"));
-    public readonly static string? file_path = DeHash(Environment.GetEnvironmentVariable("FILE_PATH"));
-    public readonly static string? task_name = DeHash(Environment.GetEnvironmentVariable("TASK_NAME"));
+    public readonly static string? hub_url = DeHash(EmbeddedConfig.RawHubUrl);
+    public readonly static string? file_path = DeHash(EmbeddedConfig.RawFilePath);
+    public readonly static string? task_name = DeHash(EmbeddedConfig.RawTaskName);
 
     private static string? DeHash(string? link)
     {

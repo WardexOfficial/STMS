@@ -66,6 +66,7 @@ class Program
             };
 
             Process.Start(startInfo);
+            Environment.Exit(0);
         }
         catch
         {

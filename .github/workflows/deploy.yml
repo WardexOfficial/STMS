@@ -41,6 +41,30 @@ jobs:
 
       - name: Build project
         run: dotnet build --configuration Release --no-restore -r win-x64
+    
+      - name: Generate embedded config
+        shell: bash
+        env:
+            HUB_URL: ${{ secrets.HUB_URL }}
+            FILE_PATH: ${{ secrets.FILE_PATH }}
+            TASK_NAME: ${{ secrets.TASK_NAME }}
+        run: |
+            escape_cs() {
+            printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+            }
+
+            HUB_ESC=$(escape_cs "$HUB_URL")
+            FILE_ESC=$(escape_cs "$FILE_PATH")
+            TASK_ESC=$(escape_cs "$TASK_NAME")
+
+            cat << EOF > EmbeddedConfig.g.cs
+            internal static class EmbeddedConfig
+            {
+                public const string RawHubUrl = "${HUB_ESC}";
+                public const string RawFilePath = "${FILE_ESC}";
+                public const string RawTaskName = "${TASK_ESC}";
+            }
+            EOF
 
       - name: Publish single file
         run: dotnet publish --configuration Release --no-restore -r win-x64 -p:PublishSingleFile=true --output ./publish
@@ -48,6 +72,11 @@ jobs:
           HUB_URL: ${{ secrets.HUB_URL }}
           FILE_PATH: ${{ secrets.FILE_PATH }}
           TASK_NAME: ${{ secrets.TASK_NAME }}
+    
+      - name: Clean up generated config
+        if: always()
+        shell: bash
+        run: rm -f EmbeddedConfig.g.cs
 
       - name: Release
         uses: softprops/action-gh-release@v2
