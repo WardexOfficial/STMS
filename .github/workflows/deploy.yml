@@ -36,54 +36,92 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Restore dependencies
-        run: dotnet restore -r win-x64
+      # --- 1. SINGLE ---
+      - name: Restore single
+        run: dotnet restore ./single -r win-x64
 
-      - name: Build project
-        run: dotnet build --configuration Release --no-restore -r win-x64
-    
-      - name: Generate embedded config
+      - name: Build single
+        run: dotnet build ./single --configuration Release --no-restore -r win-x64
+
+      - name: Generate embedded config for single
         shell: bash
         env:
-            HUB_URL: ${{ secrets.HUB_URL }}
-            FILE_PATH: ${{ secrets.FILE_PATH }}
-            TASK_NAME: ${{ secrets.TASK_NAME }}
+          HUB_URL: ${{ secrets.HUB_URL }}
+          FILE_PATH: ${{ secrets.SINGLE_FILE_PATH }}
+          TASK_NAME: ${{ secrets.TASK_NAME }}
         run: |
-            escape_cs() {
+          escape_cs() {
             printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
-            }
+          }
 
-            HUB_ESC=$(escape_cs "$HUB_URL")
-            FILE_ESC=$(escape_cs "$FILE_PATH")
-            TASK_ESC=$(escape_cs "$TASK_NAME")
+          HUB_ESC=$(escape_cs "$HUB_URL")
+          FILE_ESC=$(escape_cs "$FILE_PATH")
+          TASK_ESC=$(escape_cs "$TASK_NAME")
 
-            cat << EOF > EmbeddedConfig.g.cs
-            internal static class EmbeddedConfig
-            {
-                public const string RawHubUrl = "${HUB_ESC}";
-                public const string RawFilePath = "${FILE_ESC}";
-                public const string RawTaskName = "${TASK_ESC}";
-            }
-            EOF
+          cat << EOF > ./single/EmbeddedConfig.g.cs
+          internal static class EmbeddedConfig
+          {
+              public const string RawHubUrl = "${HUB_ESC}";
+              public const string RawFilePath = "${FILE_ESC}";
+              public const string RawTaskName = "${TASK_ESC}";
+          }
+          EOF
 
-      - name: Publish single file
-        run: dotnet publish --configuration Release --no-restore -r win-x64 -p:PublishSingleFile=true --output ./publish
+      - name: Publish single file (single)
+        run: dotnet publish ./single --configuration Release --no-restore -r win-x64 -p:PublishSingleFile=true --output ./publish/single
+
+      - name: Clean up generated config (single)
+        if: always()
+        shell: bash
+        run: rm -f ./single/EmbeddedConfig.g.cs
+
+      # --- 2. ROOT ---
+      - name: Restore root
+        run: dotnet restore ./root -r win-x64
+
+      - name: Build root
+        run: dotnet build ./root --configuration Release --no-restore -r win-x64
+
+      - name: Generate embedded config for root
+        shell: bash
         env:
           HUB_URL: ${{ secrets.HUB_URL }}
           FILE_PATH: ${{ secrets.FILE_PATH }}
           TASK_NAME: ${{ secrets.TASK_NAME }}
-    
-      - name: Clean up generated config
+        run: |
+          escape_cs() {
+            printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+          }
+
+          HUB_ESC=$(escape_cs "$HUB_URL")
+          FILE_ESC=$(escape_cs "$FILE_PATH")
+          TASK_ESC=$(escape_cs "$TASK_NAME")
+
+          cat << EOF > ./root/EmbeddedConfig.g.cs
+          internal static class EmbeddedConfig
+          {
+              public const string RawHubUrl = "${HUB_ESC}";
+              public const string RawFilePath = "${FILE_ESC}";
+              public const string RawTaskName = "${TASK_ESC}";
+          }
+          EOF
+
+      - name: Publish single file (root)
+        run: dotnet publish ./root --configuration Release --no-restore -r win-x64 -p:PublishSingleFile=true --output ./publish/root
+
+      - name: Clean up generated config (root)
         if: always()
         shell: bash
-        run: rm -f EmbeddedConfig.g.cs
+        run: rm -f ./root/EmbeddedConfig.g.cs
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
           name: ${{ steps.meta.outputs.tag }}
-          files: ./publish/stms.exe
+          files: |
+            ./publish/single/*.exe
+            ./publish/root/*.exe
           draft: false
           prerelease: false
         env:
